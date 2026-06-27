@@ -10,7 +10,7 @@ To get started with the project locally:
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-org/Codezen-Ecosystem.git
+   git clone https://github.com/neodyit/Codezen-Ecosystem.git
    cd Codezen-Ecosystem
    ```
 
