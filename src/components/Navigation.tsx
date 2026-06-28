@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
+import { Link } from "react-router-dom";
 
 interface NavItem {
   label: string;
@@ -13,10 +14,10 @@ interface SocialItem {
 }
 
 const navItems: NavItem[] = [
-  { label: "About", href: "#about", number: "01" },
-  { label: "Work", href: "#work", number: "02" },
-  { label: "Mission", href: "#philosophy", number: "03" },
-  { label: "Contact", href: "#contact", number: "04" },
+  { label: "About", href: "/#about", number: "01" },
+  { label: "Work", href: "/#work", number: "02" },
+  { label: "Mission", href: "/#philosophy", number: "03" },
+  { label: "Contact", href: "/#contact", number: "04" },
 ];
 
 const socialItems: SocialItem[] = [
@@ -147,7 +148,7 @@ const Navigation = () => {
           >
             {/* Socials row */}
             <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mb-4 pt-10 md:pt-0">
-              <p className="text-sm text-white/70 uppercase tracking-widest font-mono mr-2">
+              <p className="text-base md:text-lg font-medium text-white/50 uppercase tracking-wider mr-2 select-none">
                 Socials
               </p>
               {socialItems.map((item, i) => (
@@ -166,6 +167,25 @@ const Navigation = () => {
                   {item.label}
                 </motion.a>
               ))}
+
+              <span className="text-white/20 hidden md:inline select-none">|</span>
+
+              <motion.div
+                custom={socialItems.length}
+                variants={socialVariants}
+                initial="closed"
+                animate="open"
+                exit="closed"
+                className="inline-flex items-center"
+              >
+                <Link
+                  to="/members"
+                  onClick={handleNavClick}
+                  className="text-base md:text-lg font-medium text-white hover:opacity-40 transition-opacity duration-300"
+                >
+                  Members
+                </Link>
+              </motion.div>
             </div>
 
             {/* Nav Links */}
