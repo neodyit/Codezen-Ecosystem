@@ -439,8 +439,113 @@ export default function AdminDashboard() {
   });
 
   return (
-    <div className="h-screen overflow-hidden bg-black text-white font-sans flex flex-col md:flex-row relative">
+    <div className="admin-dashboard-root h-screen overflow-hidden bg-black text-white font-sans flex flex-col md:flex-row relative">
       <style>{`
+        .admin-dashboard-root {
+          font-family: 'Geist', sans-serif !important;
+        }
+
+        .admin-dashboard-root code,
+        .admin-dashboard-root .font-mono {
+          font-family: 'Geist Mono', monospace !important;
+        }
+
+        /* Modernize card containers with 16px rounded corners & smooth shadows */
+        .admin-dashboard-root .border {
+          border-radius: 16px !important;
+          border-color: rgba(39, 39, 42, 0.65) !important; /* zinc-800 style */
+          box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.7) !important;
+        }
+
+        /* Modernize nested items / lists with 12px rounded corners & prevent card shadows */
+        .admin-dashboard-root .border[class*="bg-black/"],
+        .admin-dashboard-root .border[class*="bg-zinc-900/"],
+        .admin-dashboard-root [class*="bg-black/"],
+        .admin-dashboard-root [class*="bg-zinc-900/"] {
+          border-radius: 12px !important;
+          border-color: rgba(39, 39, 42, 0.5) !important;
+          box-shadow: none !important;
+        }
+
+        /* Modernize buttons with 12px curves and smooth hover easing */
+        .admin-dashboard-root button {
+          border-radius: 12px !important;
+          transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+
+        /* Active buttons custom styling with subtle glow */
+        .admin-dashboard-root button.bg-white {
+          box-shadow: 0 4px 14px -2px rgba(255, 255, 255, 0.12) !important;
+        }
+
+        /* Clean up typography weights */
+        .admin-dashboard-root .font-black {
+          font-weight: 700 !important;
+        }
+
+        /* Adjust headings hierarchy for clean modern look */
+        .admin-dashboard-root h2 {
+          font-weight: 700 !important;
+          letter-spacing: -0.03em !important;
+          text-transform: none !important;
+        }
+
+        .admin-dashboard-root h3 {
+          font-weight: 600 !important;
+          letter-spacing: -0.015em !important;
+        }
+
+        /* Table header formatting for clean layout */
+        .admin-dashboard-root th {
+          font-weight: 500 !important;
+          color: #a1a1aa !important; /* zinc-400 */
+          letter-spacing: 0.05em !important;
+        }
+
+        /* Modernize Table Wrapper with rounded borders & overflow control */
+        .admin-dashboard-root .overflow-x-auto {
+          border-radius: 16px !important;
+          border: 1px solid rgba(39, 39, 42, 0.65) !important;
+          background-color: rgba(9, 9, 11, 0.2) !important;
+          overflow: hidden !important;
+        }
+
+        /* Subtle row divider lines */
+        .admin-dashboard-root tr {
+          border-bottom-color: rgba(39, 39, 42, 0.4) !important;
+        }
+
+        /* Modernize Inputs, Textareas, and Selects with 12px curves and hover state */
+        .admin-dashboard-root input,
+        .admin-dashboard-root textarea,
+        .admin-dashboard-root select {
+          font-family: 'Geist', sans-serif !important;
+          font-size: 13px !important;
+          letter-spacing: -0.01em !important;
+          border-radius: 12px !important;
+          border-color: rgba(39, 39, 42, 0.7) !important;
+          background-color: rgba(9, 9, 11, 0.6) !important;
+          padding: 10px 14px !important;
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+
+        .admin-dashboard-root input:focus,
+        .admin-dashboard-root textarea:focus,
+        .admin-dashboard-root select:focus {
+          border-color: rgba(161, 161, 170, 0.5) !important; /* zinc-400 */
+          background-color: rgba(9, 9, 11, 0.9) !important;
+          outline: none !important;
+          box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05) !important;
+        }
+
+        /* Subtle spacing & padding adjustments */
+        .admin-dashboard-root .p-6 {
+          padding: 1.75rem !important;
+        }
+        .admin-dashboard-root .p-5 {
+          padding: 1.5rem !important;
+        }
+
         /* Hide scrollbars for all overflow containers inside the admin dashboard */
         .overflow-y-auto, .no-scrollbar {
           -ms-overflow-style: none !important;
@@ -453,13 +558,6 @@ export default function AdminDashboard() {
         }
       `}</style>
       <Toaster position="top-right" theme="dark" closeButton />
-      
-      {/* Brand logo custom styling, absolutely positioned for consistency with main layout */}
-      <div className="absolute top-4 right-4 z-50 pointer-events-none hidden md:block">
-        <span className="font-mono text-[9px] tracking-widest text-white/30 uppercase bg-white/5 border border-white/10 px-2.5 py-1">
-          Admin Portal • v1.0.4-Static
-        </span>
-      </div>
 
       {/* --- SIDEBAR NAVIGATION --- */}
       <aside className="w-full md:w-64 border-b md:border-b-0 md:border-r border-white/10 bg-zinc-950 flex flex-col justify-between p-6 shrink-0">
@@ -474,19 +572,6 @@ export default function AdminDashboard() {
             </Link>
           </div>
 
-          {/* Quick status bar */}
-          <div className="p-3 bg-white/5 border border-white/10 mb-6 flex flex-col gap-1.5 rounded-sm">
-            <div className="flex items-center gap-1.5">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400" />
-              </span>
-              <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">
-                System Synchronized
-              </span>
-            </div>
-            <p className="text-[9px] font-mono text-zinc-500">Local DB Session Active</p>
-          </div>
 
           {/* Nav List */}
           <nav className="flex flex-col gap-1">
@@ -520,13 +605,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Sidebar Footer info */}
-        <div className="mt-8 pt-4 border-t border-white/5 flex flex-col gap-2">
-          <Link
-            to="/"
-            className="text-[10px] font-mono text-zinc-500 hover:text-white transition-colors flex items-center gap-1 uppercase tracking-wider"
-          >
-            ← View Public Site
-          </Link>
+        <div className="mt-8 flex flex-col gap-2">
           <p className="text-[9px] font-mono text-zinc-600">© 2026 CodeZen Ecosystem</p>
         </div>
       </aside>
@@ -572,67 +651,38 @@ export default function AdminDashboard() {
                   ))}
                 </div>
 
-                {/* Subgrid: Server Uptime Graph & Activity logs */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {/* Performance / Network Card */}
-                  <div className="lg:col-span-2 border border-white/10 bg-zinc-950 p-6 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-xs font-mono uppercase tracking-widest text-white/50 flex items-center gap-2">
-                        <Activity size={14} className="text-emerald-400" /> Database Performance (API Request Response)
-                      </h4>
-                      <span className="text-[10px] font-mono text-emerald-400 bg-emerald-400/10 px-2 py-0.5 uppercase">Stable</span>
-                    </div>
-                    {/* Simulated SVG Graph */}
-                    <div className="h-44 w-full bg-zinc-900/30 border border-white/5 relative flex items-end p-2 overflow-hidden">
-                      <svg className="w-full h-32 text-emerald-500" viewBox="0 0 100 100" preserveAspectRatio="none">
-                        <path
-                          d="M0,80 L10,65 L20,75 L30,45 L40,55 L50,30 L60,40 L70,15 L80,25 L90,8 L100,5"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        />
-                        <path
-                          d="M0,80 L10,65 L20,75 L30,45 L40,55 L50,30 L60,40 L70,15 L80,25 L90,8 L100,5 L100,100 L0,100 Z"
-                          fill="currentColor"
-                          opacity="0.05"
-                        />
-                      </svg>
-                      {/* Grid Lines */}
-                      <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-5">
-                        <div className="w-full h-px bg-white" />
-                        <div className="w-full h-px bg-white" />
-                        <div className="w-full h-px bg-white" />
-                        <div className="w-full h-px bg-white" />
-                      </div>
-                      <span className="absolute bottom-2 left-2 text-[9px] font-mono text-zinc-500">21:00</span>
-                      <span className="absolute bottom-2 right-2 text-[9px] font-mono text-zinc-500">Active Session</span>
-                    </div>
-                  </div>
-
-                  {/* Recent Logs panel */}
-                  <div className="border border-white/10 bg-zinc-950 p-6 space-y-4">
+                {/* Server Uptime Graph */}
+                <div className="border border-white/10 bg-zinc-950 p-6 space-y-4">
+                  <div className="flex items-center justify-between">
                     <h4 className="text-xs font-mono uppercase tracking-widest text-white/50 flex items-center gap-2">
-                      <FileText size={14} /> System Access Log
+                      <Activity size={14} className="text-emerald-400" /> Database Performance (API Request Response)
                     </h4>
-                    <div className="space-y-3 max-h-48 overflow-y-auto">
-                      {[
-                        { time: "21:30:18", event: "Admin dashboard loaded", type: "system" },
-                        { time: "21:28:44", event: "Member data synchronized", type: "sync" },
-                        { time: "21:20:12", event: "New registration approved: Devinder Singh", type: "action" },
-                        { time: "20:44:09", event: "Store item stock level updated", type: "store" }
-                      ].map((log, idx) => (
-                        <div key={idx} className="text-[10px] font-mono border-b border-white/5 pb-2 last:border-b-0 flex gap-2 items-start">
-                          <span className="text-zinc-600">{log.time}</span>
-                          <div>
-                            <p className="text-zinc-300">{log.event}</p>
-                            <span className={`text-[8px] uppercase px-1 py-0.2 border ${
-                              log.type === "system" ? "border-sky-500/25 text-sky-400" :
-                              log.type === "sync" ? "border-emerald-500/25 text-emerald-400" : "border-pink-500/25 text-pink-400"
-                            }`}>{log.type}</span>
-                          </div>
-                        </div>
-                      ))}
+                    <span className="text-[10px] font-mono text-emerald-400 bg-emerald-400/10 px-2 py-0.5 uppercase">Stable</span>
+                  </div>
+                  {/* Simulated SVG Graph */}
+                  <div className="h-44 w-full bg-zinc-900/30 border border-white/5 relative flex items-end p-2 overflow-hidden">
+                    <svg className="w-full h-32 text-emerald-500" viewBox="0 0 100 100" preserveAspectRatio="none">
+                      <path
+                        d="M0,80 L10,65 L20,75 L30,45 L40,55 L50,30 L60,40 L70,15 L80,25 L90,8 L100,5"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      />
+                      <path
+                        d="M0,80 L10,65 L20,75 L30,45 L40,55 L50,30 L60,40 L70,15 L80,25 L90,8 L100,5 L100,100 L0,100 Z"
+                        fill="currentColor"
+                        opacity="0.05"
+                      />
+                    </svg>
+                    {/* Grid Lines */}
+                    <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-5">
+                      <div className="w-full h-px bg-white" />
+                      <div className="w-full h-px bg-white" />
+                      <div className="w-full h-px bg-white" />
+                      <div className="w-full h-px bg-white" />
                     </div>
+                    <span className="absolute bottom-2 left-2 text-[9px] font-mono text-zinc-500">21:00</span>
+                    <span className="absolute bottom-2 right-2 text-[9px] font-mono text-zinc-500">Active Session</span>
                   </div>
                 </div>
               </div>
