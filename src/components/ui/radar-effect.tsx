@@ -65,7 +65,7 @@ export const IconContainer = ({
   delay,
 }: {
   icon?: React.ReactNode;
-  text?: string;
+  text?: React.ReactNode;
   delay?: number;
 }) => {
   return (

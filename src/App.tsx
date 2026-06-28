@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ReactLenis } from 'lenis/react';
 import Index from "./pages/public/Index";
 import Members from "./pages/public/Members";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 import NotFound from "./pages/errors/NotFound";
 
 const App = () => (
@@ -20,6 +21,7 @@ const App = () => (
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/members" element={<Members />} />
+        <Route path="/admin" element={<AdminDashboard />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
