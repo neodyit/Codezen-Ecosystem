@@ -439,7 +439,19 @@ export default function AdminDashboard() {
   });
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans flex flex-col md:flex-row relative">
+    <div className="h-screen overflow-hidden bg-black text-white font-sans flex flex-col md:flex-row relative">
+      <style>{`
+        /* Hide scrollbars for all overflow containers inside the admin dashboard */
+        .overflow-y-auto, .no-scrollbar {
+          -ms-overflow-style: none !important;
+          scrollbar-width: none !important;
+        }
+        .overflow-y-auto::-webkit-scrollbar, .no-scrollbar::-webkit-scrollbar {
+          display: none !important;
+          width: 0 !important;
+          height: 0 !important;
+        }
+      `}</style>
       <Toaster position="top-right" theme="dark" closeButton />
       
       {/* Brand logo custom styling, absolutely positioned for consistency with main layout */}
@@ -520,7 +532,7 @@ export default function AdminDashboard() {
       </aside>
 
       {/* --- MAIN CONTENT PANELS --- */}
-      <main className="flex-1 bg-black p-6 md:p-10 overflow-y-auto h-screen">
+      <main className="flex-1 bg-black p-6 md:p-10 overflow-y-auto h-full" data-lenis-prevent>
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
