@@ -1,135 +1,45 @@
-import { motion, useScroll, useTransform, Variants } from "framer-motion";
-import { useRef } from "react";
-
 const Footer = () => {
-  const footerRef = useRef<HTMLElement>(null);
-
-  const { scrollYProgress } = useScroll({
-    target: footerRef,
-    offset: ["start end", "end end"],
-  });
-
-  // Dynamically scrubs opacity & scale using scroll progression instead of transition
-  const textScale = useTransform(scrollYProgress, [0, 1], [0.8, 1]);
-  const textOpacity = useTransform(scrollYProgress, [0, 1], [0, 1]);
-
-  const footerEase = [0.22, 1, 0.36, 1] as [number, number, number, number];
-
-  const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
-    },
-  };
-
-  const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 10 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6, ease: footerEase },
-    },
-  };
-
   return (
-    <footer ref={footerRef} className="bg-black text-white font-sans pt-12 md:pt-20 border-t border-white h-screen flex flex-col">
+    <footer className="border-t border-ink/10 bg-ink py-10 text-white">
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 md:grid-cols-[1fr_auto] md:items-center lg:px-8">
+        <div>
+          <p className="text-lg font-black text-white">CodeZen Club</p>
+          <p className="mt-2 text-sm text-white/60">CGC University Mohali | Shaping Tomorrow , Today</p>
+        </div>
 
-      {/* Top Section: Info Grid */}
-      <motion.div
-        className="px-6 md:px-12 lg:px-16 max-w-[1600px] mx-auto w-full grid grid-cols-1 md:grid-cols-3 gap-y-10 md:gap-x-12 shrink-0"
-        variants={containerVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-      >
-        {/* Column 1: IDENTIFICATION */}
-        <motion.div variants={itemVariants} className="flex flex-col gap-1">
-          <h3 className="font-sans text-xs font-bold uppercase tracking-widest mb-4 text-white/80">
-            Identification
-          </h3>
-          <p className="font-sans text-xs md:text-sm font-medium uppercase tracking-wide leading-relaxed">
-            CodeZen
-          </p>
-          <p className="font-sans text-xs md:text-sm font-medium uppercase tracking-wide leading-relaxed text-white/60">
-            Student-Led Technology Community
-          </p>
-          <p className="font-sans text-xs md:text-sm font-medium uppercase tracking-wide leading-relaxed text-white/60">
-            CGC University
-          </p>
-        </motion.div>
-
-        {/* Column 2: CHANNELS */}
-        <motion.div variants={itemVariants} className="flex flex-col gap-1">
-          <h3 className="font-sans text-xs font-bold uppercase tracking-widest mb-4 text-white/80">
-            Channels
-          </h3>
-          <div className="flex flex-col gap-2">
-            <a
-              href=""
-              className="font-sans text-xs md:text-sm font-medium uppercase tracking-wide hover:underline underline-offset-4 decoration-1 w-fit flex items-center gap-1"
-            >
-              Email ↗
-            </a>
-            <a
-              href=""
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-sans text-xs md:text-sm font-medium uppercase tracking-wide hover:underline underline-offset-4 decoration-1 w-fit flex items-center gap-1"
-            >
-              LinkedIn ↗
-            </a>
-            <a
-              href="https://github.com/neodyit"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-sans text-xs md:text-sm font-medium uppercase tracking-wide hover:underline underline-offset-4 decoration-1 w-fit flex items-center gap-1"
-            >
-              GitHub ↗
-            </a>
-          </div>
-        </motion.div>
-
-        {/* Column 3: COLOPHON + YEAR */}
-        <motion.div variants={itemVariants} className="flex flex-col h-full justify-between">
-          <div className="flex flex-col gap-1">
-            <h3 className="font-sans text-xs font-bold uppercase tracking-widest mb-4 text-white/80">
-              Colophon
-            </h3>
-            <p className="font-sans text-xs md:text-sm font-medium uppercase tracking-wide text-white/60">
-              Community: 2800+ Members / 60+ Core Team
-            </p>
-            <p className="font-sans text-xs md:text-sm font-medium uppercase tracking-wide text-white/60">
-              Domains: Technical / Management / Marketing / Design / Content / Media
-            </p>
-            <p className="font-sans text-xs md:text-sm font-medium uppercase tracking-wide text-white/60">
-              Focus: Innovation / Collaboration / Real-World Learning
-            </p>
-          </div>
-
-          <div className="mt-8 md:mt-0">
-            <p className="font-sans text-xs md:text-sm font-bold uppercase tracking-widest text-white">
-              2026
-            </p>
-          </div>
-        </motion.div>
-      </motion.div>
-
-      {/* Bottom Section: Branding Text */}
-      <motion.div
-        style={{ opacity: textOpacity, scale: textScale }}
-        className="w-full flex-1 flex flex-col justify-center items-center overflow-hidden select-none pb-4"
-      >
-        <h1 className="font-sans font-black text-[23vw] leading-[0.8] text-white uppercase tracking-tighter flex items-start">
-          CodeZen
-          <span className="text-xl md:text-4xl lg:text-6xl font-medium mt-[2vw] ml-1 opacity-60">
-            ®
-          </span>
-        </h1>
-      </motion.div>
+        <div className="flex flex-wrap gap-3">
+          <a
+            className="rounded-lg border border-white/15 px-4 py-2 text-sm font-bold text-white/80 transition hover:border-mint hover:text-mint"
+            href="https://www.instagram.com/officialcodezen?igsh=cngxeXh2Y2g3cHJp"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Instagram
+          </a>
+          <a
+            className="rounded-lg border border-white/15 px-4 py-2 text-sm font-bold text-white/80 transition hover:border-mint hover:text-mint"
+            href="https://www.linkedin.com/company/codezenofficial/posts/?feedView=all"
+            target="_blank"
+            rel="noreferrer"
+          >
+            LinkedIn
+          </a>
+          <a
+            className="rounded-lg border border-white/15 px-4 py-2 text-sm font-bold text-white/80 transition hover:border-mint hover:text-mint"
+            href="https://github.com/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            GitHub
+          </a>
+          <a
+            className="rounded-lg border border-white/15 px-4 py-2 text-sm font-bold text-white/80 transition hover:border-mint hover:text-mint"
+            href="mailto:info@codezencommunity.in"
+          >
+            Email
+          </a>
+        </div>
+      </div>
     </footer>
   );
 };
