@@ -18,6 +18,11 @@ export default {
         sans: ['Inter', 'system-ui', 'sans-serif'],
       },
       colors: {
+        ink: '#10131f',
+        mint: '#56d6a4',
+        coral: '#ff6b5f',
+        sun: '#ffd166',
+        skysoft: '#dff4ff',
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
