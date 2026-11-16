@@ -1,6 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, useSpring, useMotionValue, useScroll, useTransform } from "framer-motion";
-import { Github, Linkedin, Instagram, Mail } from "lucide-react";
+import { MessageCircle, Linkedin, Instagram, Mail } from "lucide-react";
 
 // Components
 import About from "./About";
@@ -10,6 +11,7 @@ import VectorBridge from "@/components/sections/VectorBridge";
 import Footer from "@/components/sections/Footer";
 import Contact from "./Contact";
 import Testimonial from "@/components/sections/Testimonial";
+import Leadership from "@/components/sections/Leadership";
 import Navigation from "@/components/Navigation";
 
 // --- Cursor Follower ---
@@ -66,10 +68,10 @@ const AvailabilityBadge = () => (
 
 const SocialStrip = () => {
   const socials = [
-    { label: "Whatsapp", href: "#" },
-    { label: "LinkedIn", href: "#" },
-    { label: "Instagram", href: "#" },
-    { label: "Email", href: "#" },
+    { label: "WhatsApp", href: "https://chat.whatsapp.com/GlNv1nsYpd49MivwcHkPCo?s=cl&p=a&ilr=1" },
+    { label: "LinkedIn", href: "https://www.linkedin.com/company/codezenofficial" },
+    { label: "Instagram", href: "https://www.instagram.com/codezencommunity/" },
+    { label: "Email", href: "mailto:info@codezencommunity.com" },
   ];
   return (
     <motion.div
@@ -100,47 +102,79 @@ const SocialStrip = () => {
   );
 };
 
-const SpinningCTA = () => (
-  <motion.div
-    initial={{ opacity: 0, scale: 0.8 }}
-    animate={{ opacity: 1, scale: 1 }}
-    transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-    className="absolute md:z-30 lg:z-10 hidden md:flex items-center justify-center"
-    style={{ bottom: "4rem", right: "4rem" }}
-  >
-    <style>{`
-      @keyframes ctaSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-      .cta-ring { animation: ctaSpin var(--cta-spin-duration, 10s) linear infinite; transform-origin: center; }
-      .cta-wrap:hover .cta-ring { --cta-spin-duration: 3s; }
-      .cta-wrap { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-      .cta-wrap:hover { transform: scale(1.08); }
-    `}</style>
-    <a href="#contact" className="cta-wrap group relative flex items-center justify-center w-[130px] h-[130px]" aria-label="Get in touch">
-      <svg viewBox="0 0 130 130" className="absolute inset-0 w-full h-full pointer-events-none">
-        <circle cx="65" cy="65" r="62" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" />
-      </svg>
-      <svg viewBox="0 0 130 130" className="cta-ring absolute inset-0 w-full h-full pointer-events-none">
-        <defs>
-          <path id="cta-circle-path" d="M65,65 m-50,0 a50,50 0 1,1 100,0 a50,50 0 1,1 -100,0" />
-        </defs>
-        <text fill="rgba(255,255,255,1)" fontSize="8.5" fontFamily="'Inter', sans-serif" fontWeight="900" letterSpacing="4">
-          <textPath href="#cta-circle-path">JOIN CODEZEN · EXPLORE EVENTS &nbsp;</textPath>
-        </text>
-      </svg>
-      <span className="absolute inset-4 rounded-full bg-white scale-0 group-hover:scale-100 transition-transform duration-500 ease-in-out" style={{ transformOrigin: "center" }} />
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="relative z-10 w-6 h-6 text-white group-hover:text-black" style={{ transition: "color 0.3s ease" }}>
-        <path d="M7 17L17 7M17 7H7M17 7v10" />
-      </svg>
-    </a>
-  </motion.div>
-);
+const SpinningCTA = () => {
+  const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("codezen_token");
+    setIsAuthenticated(!!token);
+  }, []);
+
+  const handleClick = (e: React.MouseEvent) => {
+    const token = localStorage.getItem("codezen_token");
+    if (token) {
+      e.preventDefault();
+      navigate("/dashboard");
+    } else {
+      // Not authenticated: scroll to the login/join codezen section
+      const contactSection = document.getElementById("contact");
+      if (contactSection) {
+        e.preventDefault();
+        contactSection.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      className="absolute md:z-30 lg:z-10 hidden md:flex items-center justify-center"
+      style={{ bottom: "4rem", right: "4rem" }}
+    >
+      <style>{`
+        @keyframes ctaSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .cta-ring { animation: ctaSpin var(--cta-spin-duration, 10s) linear infinite; transform-origin: center; }
+        .cta-wrap:hover .cta-ring { --cta-spin-duration: 3s; }
+        .cta-wrap { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .cta-wrap:hover { transform: scale(1.08); }
+      `}</style>
+      <a
+        href={isAuthenticated ? "/dashboard" : "#contact"}
+        onClick={handleClick}
+        className="cta-wrap group relative flex items-center justify-center w-[130px] h-[130px] cursor-pointer"
+        aria-label={isAuthenticated ? "Open Dashboard" : "Join Codezen or Sign In"}
+      >
+        <svg viewBox="0 0 130 130" className="absolute inset-0 w-full h-full pointer-events-none">
+          <circle cx="65" cy="65" r="62" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" />
+        </svg>
+        <svg viewBox="0 0 130 130" className="cta-ring absolute inset-0 w-full h-full pointer-events-none">
+          <defs>
+            <path id="cta-circle-path" d="M65,65 m-50,0 a50,50 0 1,1 100,0 a50,50 0 1,1 -100,0" />
+          </defs>
+          <text fill="rgba(255,255,255,1)" fontSize="8.5" fontFamily="'Inter', sans-serif" fontWeight="900" letterSpacing="4">
+            <textPath href="#cta-circle-path">
+              {isAuthenticated ? "OPEN DASHBOARD · CODEZEN MEMBER &nbsp;" : "JOIN CODEZEN · EXPLORE EVENTS &nbsp;"}
+            </textPath>
+          </text>
+        </svg>
+        <span className="absolute inset-4 rounded-full bg-white scale-0 group-hover:scale-100 transition-transform duration-500 ease-in-out" style={{ transformOrigin: "center" }} />
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="relative z-10 w-6 h-6 text-white group-hover:text-black" style={{ transition: "color 0.3s ease" }}>
+          <path d="M7 17L17 7M17 7H7M17 7v10" />
+        </svg>
+      </a>
+    </motion.div>
+  );
+};
 
 const MobileSocialStrip = () => {
   const socials = [
-    { label: "Whatsapp", icon: Github, href: "https://github.com/neodyit" },
-    { label: "LinkedIn", icon: Linkedin, href: "" },
-    { label: "Instagram", icon: Instagram, href: "https://www.instagram.com/codemaestro_mayank_" },
-    { label: "Email", icon: Mail, href: "" },
+    { label: "WhatsApp", icon: MessageCircle, href: "https://chat.whatsapp.com/GlNv1nsYpd49MivwcHkPCo?s=cl&p=a&ilr=1" },
+    { label: "LinkedIn", icon: Linkedin, href: "https://www.linkedin.com/company/codezenofficial" },
+    { label: "Instagram", icon: Instagram, href: "https://www.instagram.com/codezencommunity/" },
+    { label: "Email", icon: Mail, href: "mailto:info@codezencommunity.com" },
   ];
   return (
     <motion.div
@@ -204,9 +238,20 @@ const Index = () => {
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             className="w-fit"
           >
-            <a href="#contact" className="group relative overflow-hidden border border-white/30 px-5 py-3 flex items-center gap-3 hover:border-white transition-colors duration-500 w-fit mb-6 md:hidden">
+            <a
+              href="#contact"
+              onClick={(e) => {
+                if (localStorage.getItem("codezen_token")) {
+                  e.preventDefault();
+                  window.location.href = "/dashboard";
+                }
+              }}
+              className="group relative overflow-hidden border border-white/30 px-5 py-3 flex items-center gap-3 hover:border-white transition-colors duration-500 w-fit mb-6 md:hidden"
+            >
               <span className="absolute inset-0 bg-white translate-x-[-101%] group-hover:translate-x-0 transition-transform duration-500 ease-in-out" />
-              <span className="relative font-sans font-black text-[10px] tracking-[0.25em] uppercase text-white group-hover:text-black transition-colors duration-300 z-10">Get in touch</span>
+              <span className="relative font-sans font-black text-[10px] tracking-[0.25em] uppercase text-white group-hover:text-black transition-colors duration-300 z-10">
+                {localStorage.getItem("codezen_token") ? "Dashboard" : "Get in touch"}
+              </span>
               <svg className="relative w-3 h-3 text-white group-hover:text-black transition-colors duration-300 z-10" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="M1 6h10M6 1l5 5-5 5" />
               </svg>
@@ -246,6 +291,10 @@ const Index = () => {
 
         <div className="bg-black text-white relative z-20">
           <Testimonial />
+        </div>
+
+        <div id="leadership" className="bg-white text-black relative z-20">
+          <Leadership />
         </div>
 
         {/* Change contact layer to z-20 and relative so it scrolls normally OVER the footer */}

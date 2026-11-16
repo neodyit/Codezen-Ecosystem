@@ -1,8 +1,16 @@
 import { motion, useScroll, useTransform, Variants } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 const Footer = () => {
   const footerRef = useRef<HTMLElement>(null);
+  const [hoveredLetter, setHoveredLetter] = useState<number | null>(null);
+
+  const words = [
+    { text: "MADE", letterIdx: 0 },
+    { text: "BY", letterIdx: 1 },
+    { text: "MAYANK", letterIdx: 3 },
+    { text: "TIWARI", letterIdx: 5 },
+  ];
 
   const { scrollYProgress } = useScroll({
     target: footerRef,
@@ -69,13 +77,15 @@ const Footer = () => {
           </h3>
           <div className="flex flex-col gap-2">
             <a
-              href=""
+              href="https://chat.whatsapp.com/GlNv1nsYpd49MivwcHkPCo?s=cl&p=a&ilr=1"
+              target="_blank"
+              rel="noopener noreferrer"
               className="font-sans text-xs md:text-sm font-medium uppercase tracking-wide hover:underline underline-offset-4 decoration-1 w-fit flex items-center gap-1"
             >
-              Email ↗
+              WhatsApp ↗
             </a>
             <a
-              href=""
+              href="https://www.linkedin.com/company/codezenofficial"
               target="_blank"
               rel="noopener noreferrer"
               className="font-sans text-xs md:text-sm font-medium uppercase tracking-wide hover:underline underline-offset-4 decoration-1 w-fit flex items-center gap-1"
@@ -83,12 +93,18 @@ const Footer = () => {
               LinkedIn ↗
             </a>
             <a
-              href="https://github.com/neodyit"
+              href="https://www.instagram.com/codezencommunity/"
               target="_blank"
               rel="noopener noreferrer"
               className="font-sans text-xs md:text-sm font-medium uppercase tracking-wide hover:underline underline-offset-4 decoration-1 w-fit flex items-center gap-1"
             >
-              GitHub ↗
+              Instagram ↗
+            </a>
+            <a
+              href="mailto:info@codezencommunity.com"
+              className="font-sans text-xs md:text-sm font-medium uppercase tracking-wide hover:underline underline-offset-4 decoration-1 w-fit flex items-center gap-1"
+            >
+              Email ↗
             </a>
           </div>
         </motion.div>
@@ -123,11 +139,55 @@ const Footer = () => {
         style={{ opacity: textOpacity, scale: textScale }}
         className="w-full flex-1 flex flex-col justify-center items-center overflow-hidden select-none pb-4"
       >
-        <h1 className="font-sans font-black text-[23vw] leading-[0.8] text-white uppercase tracking-tighter flex items-start">
-          CodeZen
-          <span className="text-xl md:text-4xl lg:text-6xl font-medium mt-[2vw] ml-1 opacity-60">
+        {/* "MADE BY MAYANK TIWARI" positioned directly above CODEZEN */}
+        <div className="flex items-center gap-3 md:gap-6 mb-2 md:mb-3">
+          {words.map((w, idx) => {
+            const isPushed = hoveredLetter !== null && (
+              hoveredLetter === w.letterIdx ||
+              (w.text === "MAYANK" && (hoveredLetter === 2 || hoveredLetter === 3)) ||
+              (w.text === "TIWARI" && (hoveredLetter === 4 || hoveredLetter === 5 || hoveredLetter === 6))
+            );
+
+            return (
+              <motion.span
+                key={idx}
+                animate={isPushed ? { y: -16, scale: 1.15, opacity: 1, color: "#ffffff" } : { y: 0, scale: 1, opacity: 0.5, color: "#a1a1aa" }}
+                transition={{ type: "spring", stiffness: 450, damping: 15 }}
+                className="font-mono text-[11px] md:text-sm uppercase tracking-[0.35em] inline-block font-semibold"
+              >
+                {w.text}
+              </motion.span>
+            );
+          })}
+        </div>
+
+        <h1 className="font-sans font-black text-[23vw] leading-[0.8] text-white uppercase tracking-tighter flex items-start cursor-default">
+          {"CODEZEN".split("").map((letter, i) => (
+            <motion.span
+              key={i}
+              className="inline-block transition-colors duration-300 hover:text-white"
+              onMouseEnter={() => setHoveredLetter(i)}
+              onMouseLeave={() => setHoveredLetter(null)}
+              whileHover={{
+                y: -18,
+                scale: 1.06,
+                transition: { type: "spring", stiffness: 450, damping: 15 },
+              }}
+            >
+              {letter}
+            </motion.span>
+          ))}
+          <motion.span
+            className="inline-block text-xl md:text-4xl lg:text-6xl font-medium mt-[2vw] ml-1 opacity-60 cursor-default"
+            whileHover={{
+              y: -10,
+              rotate: 360,
+              opacity: 1,
+              transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
+            }}
+          >
             ®
-          </span>
+          </motion.span>
         </h1>
       </motion.div>
     </footer>

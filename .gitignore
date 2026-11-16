@@ -27,9 +27,33 @@ prj.md
 *.sln
 *.sw?
 
-# Vite / React environment variables
+# Vite / React / Backend environment variables
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+!.env.example
+backend-laravel/.env
+backend-laravel/.env.*
+!backend-laravel/.env.example
+
+# Laravel storage logs & cache
+backend-laravel/storage/logs/*
+!backend-laravel/storage/logs/.gitignore
+backend-laravel/storage/framework/cache/*
+!backend-laravel/storage/framework/cache/.gitignore
+backend-laravel/storage/framework/sessions/*
+!backend-laravel/storage/framework/sessions/.gitignore
+backend-laravel/storage/framework/views/*
+!backend-laravel/storage/framework/views/.gitignore
+backend-laravel/storage/app/private/*
+!backend-laravel/storage/app/private/.gitignore
+backend-laravel/storage/app/public/*
+!backend-laravel/storage/app/public/.gitignore
+
+# Backend dependencies & local databases
+backend-laravel/vendor/
+backend-laravel/database/*.sqlite
+backend-laravel/database/*.sqlite-journal
+backend-laravel/.phpunit.result.cache
+
+# Development drafts
+design.excalidraw

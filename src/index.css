@@ -48,6 +48,50 @@
     width: 100%;
     max-width: 100%;
     overflow-x: clip;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.25) #000000;
+  }
+
+  /* Custom Minimalist Monochrome Scrollbar (WebKit / Chrome / Safari / Edge) */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #000000;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 9999px;
+    transition: background-color 0.2s ease;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.45);
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: #000000;
+  }
+
+  /* Universal scrollbar style for any scrollable containers (modals, drawers, tables) */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  }
+
+  /* Modal & Overlay Scroll Containment Rules */
+  .modal-scroll-lock {
+    overflow: hidden !important;
+    touch-action: none;
+  }
+
+  [data-lenis-prevent],
+  .modal-scroll-container {
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch;
   }
 
   #root {
