@@ -1,0 +1,15 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Do not rewrite backend requests (let Laravel handle them)
+  RewriteRule ^backend(/.*)?$ - [L]
+
+  # If the requested file or directory exists physically, serve it directly
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Otherwise redirect all requests to index.html for React SPA client-side routing
+  RewriteRule ^ index.html [L]
+</IfModule>
