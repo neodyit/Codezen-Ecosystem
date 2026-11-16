@@ -1,252 +1,406 @@
-"use client";
-import React, { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { Radar, IconContainer } from "@/components/ui/radar-effect";
-import Navigation from "@/components/Navigation";
-import {
-  Code,
-  Terminal,
-  Server,
-  Cpu,
-  Shield,
-  Brain,
-  Figma,
-  Palette,
-  Box,
-  Layers,
-  Briefcase,
-  Users,
-  Calendar,
-  TrendingUp,
-  Megaphone,
-  Share2,
-  PenTool,
-  Video
+import { 
+  Search, 
+  Github, 
+  Linkedin, 
+  Mail, 
+  ArrowLeft, 
+  ArrowRight,
+  Crown
 } from "lucide-react";
-
-type DomainKey = "Technical" | "Design" | "Management" | "Marketing";
+import Navigation from "@/components/Navigation";
+import { API_ROOT } from "@/config/api";
 
 interface Member {
+  id: number;
   name: string;
   role: string;
-  icon: React.ReactNode;
+  domain: string;
+  isLead: boolean;
+  specialty: string;
+  photo: string;
+  initials: string;
+  github?: string;
+  linkedin?: string;
+  email?: string;
 }
 
-const DOMAINS: Record<DomainKey, { description: string; members: Member[] }> = {
-  Technical: {
-    description: "The builders, developers, and architects crafting Codezen's digital ecosystem.",
-    members: [
-      { name: "Mayank Tiwari", role: "President & Founder", icon: <Terminal className="h-7 w-7 text-sky-400" /> },
-      { name: "Pranav Gupta", role: "Tech Lead", icon: <Code className="h-7 w-7 text-sky-400" /> },
-      { name: "Aditya Vardhan", role: "Backend Architect", icon: <Server className="h-7 w-7 text-sky-400" /> },
-      { name: "Sneha Sharma", role: "Frontend Developer", icon: <Cpu className="h-7 w-7 text-sky-400" /> },
-      { name: "Rishabh Dev", role: "Cybersecurity Lead", icon: <Shield className="h-7 w-7 text-sky-400" /> },
-      { name: "Aniket Sen", role: "AI/ML Lead", icon: <Brain className="h-7 w-7 text-sky-400" /> },
-    ]
-  },
-  Design: {
-    description: "The visual storytellers shaping Codezen's UI/UX, graphics, and brand identity.",
-    members: [
-      { name: "Diya Roy", role: "UI/UX Lead", icon: <Figma className="h-7 w-7 text-pink-400" /> },
-      { name: "Aryan Varma", role: "Creative Director", icon: <Palette className="h-7 w-7 text-pink-400" /> },
-      { name: "Kunal Kashyap", role: "3D Visualizer", icon: <Box className="h-7 w-7 text-pink-400" /> },
-      { name: "Simran Kaur", role: "Brand Designer", icon: <Layers className="h-7 w-7 text-pink-400" /> },
-    ]
-  },
-  Management: {
-    description: "The coordinators making events, partnerships, and operations execute flawlessly.",
-    members: [
-      { name: "Tushar Singla", role: "Operations Lead", icon: <Briefcase className="h-7 w-7 text-emerald-400" /> },
-      { name: "Nancy Joshi", role: "Public Relations", icon: <Users className="h-7 w-7 text-emerald-400" /> },
-      { name: "Rohit Bansal", role: "Event Coordinator", icon: <Calendar className="h-7 w-7 text-emerald-400" /> },
-      { name: "Sakshi Arora", role: "Logistics Manager", icon: <TrendingUp className="h-7 w-7 text-emerald-400" /> },
-    ]
-  },
-  Marketing: {
-    description: "The growth drivers expanding Codezen's outreach, content strategy, and presence.",
-    members: [
-      { name: "Raghav Mehra", role: "Marketing Lead", icon: <Megaphone className="h-7 w-7 text-amber-400" /> },
-      { name: "Esha Dutt", role: "Social Media Manager", icon: <Share2 className="h-7 w-7 text-amber-400" /> },
-      { name: "Karan Johar", role: "Content Strategist", icon: <PenTool className="h-7 w-7 text-amber-400" /> },
-      { name: "Ahana Sen", role: "Media Head", icon: <Video className="h-7 w-7 text-amber-400" /> },
-    ]
-  }
-};
-
-const getRowLayout = (members: Member[]) => {
-  if (members.length === 6) {
-    return {
-      row1: [members[0], members[1], members[2]],
-      row2: [members[3], members[4]],
-      row3: [members[5], null]
-    };
-  } else if (members.length === 4) {
-    return {
-      row1: [members[0], null, members[1]],
-      row2: [members[2], members[3]],
-      row3: [null, null]
-    };
-  } else {
-    return {
-      row1: [members[0], members[1], members[2]].map(m => m || null),
-      row2: [members[3], members[4]].map(m => m || null),
-      row3: [members[5], members[6]].map(m => m || null)
-    };
-  }
-};
-
 export default function Members() {
-  const [selectedDomain, setSelectedDomain] = useState<DomainKey>("Technical");
+  const [membersList, setMembersList] = useState<Member[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeDomain, setActiveDomain] = useState<string>("All");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [stats, setStats] = useState({ total: 0, leads: 0, domains: 0 });
 
-  const currentDomain = DOMAINS[selectedDomain];
-  const layout = getRowLayout(currentDomain.members);
+  useEffect(() => {
+    fetch(`${API_ROOT}/members`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.members)) {
+          const mapped: Member[] = data.members.map((u: any) => {
+            const names = (u.name || "").trim().split(" ");
+            const initials =
+              names.length >= 2
+                ? `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase()
+                : (u.name || "TM").slice(0, 2).toUpperCase();
 
-  const renderMember = (member: Member | null, idx: number) => {
-    if (!member) {
-      // Return a hidden placeholder to preserve flex layout spacing
-      return <div className="w-12 md:w-32 h-16 opacity-0 pointer-events-none" />;
-    }
+            const isLead =
+              u.type === "Lead" ||
+              u.role === "Admin" ||
+              u.type === "Admin" ||
+              (u.position || "").toLowerCase().includes("president") ||
+              (u.position || "").toLowerCase().includes("lead") ||
+              (u.position || "").toLowerCase().includes("head") ||
+              (u.position || "").toLowerCase().includes("coordinator");
 
-    return (
-      <IconContainer
-        delay={idx * 0.08}
-        icon={member.icon}
-        text={
-          <div className="text-center pointer-events-auto group cursor-default">
-            {/* Member Name */}
-            <div className="text-xs md:text-sm font-black text-slate-100 group-hover:text-white transition-colors duration-200 whitespace-nowrap">
-              {member.name}
-            </div>
-            {/* Member Role */}
-            <div className="text-[10px] md:text-xs font-mono font-medium text-slate-500 group-hover:text-slate-400 transition-colors duration-200 mt-0.5 whitespace-nowrap">
-              {member.role}
-            </div>
-            
-            {/* Glowing Active Status dot on the radar */}
-            <div className="flex items-center justify-center gap-1 mt-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-sky-400" />
-              </span>
-              <span className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">
-                Active
-              </span>
-            </div>
-          </div>
+            return {
+              id: u.id,
+              name: u.name,
+              role: u.position || (isLead ? "Domain Lead" : "Core Member"),
+              domain: u.team || "Technical",
+              isLead: isLead,
+              specialty: u.tag || u.bio || `${u.team || "Technical"} Wing Member`,
+              photo: u.avatar || "",
+              initials: initials,
+              github: u.github || undefined,
+              linkedin: u.linkedin || undefined,
+              email: u.email || undefined,
+            };
+          });
+
+          setMembersList(mapped);
+          if (data.stats) {
+            setStats(data.stats);
+          }
         }
-      />
-    );
-  };
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
 
+  // Compute available domains dynamically from the actual members in the database
+  const domains = useMemo(() => {
+    const uniqueTeams = Array.from(new Set(membersList.map((m) => m.domain).filter(Boolean)));
+    return ["All", "Leads", ...uniqueTeams];
+  }, [membersList]);
+
+  const filteredMembers = useMemo(() => {
+    return membersList.filter((m) => {
+      const matchesDomain =
+        activeDomain === "All"
+          ? true
+          : activeDomain === "Leads"
+          ? m.isLead
+          : m.domain === activeDomain;
+
+      const matchesSearch =
+        m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        m.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        m.specialty.toLowerCase().includes(searchQuery.toLowerCase());
+
+      return matchesDomain && matchesSearch;
+    });
+  }, [membersList, activeDomain, searchQuery]);
+
+  // Separate leads and working members for clear tiering
+  const leads = useMemo(() => filteredMembers.filter(m => m.isLead), [filteredMembers]);
+  const activeWorkingMembers = useMemo(() => filteredMembers.filter(m => !m.isLead), [filteredMembers]);
   return (
-    <div className="min-h-screen w-full bg-black text-white relative font-sans overflow-hidden flex flex-col">
-      {/* Brand Logo */}
-      <div className="fixed top-6 left-6 md:top-8 md:left-10 z-50 mix-blend-difference">
-        <Link to="/">
-          <h1 className="font-sans font-black text-2xl md:text-4xl tracking-tighter text-white flex items-start">
+    <div className="min-h-screen w-full bg-black text-white font-sans selection:bg-white selection:text-black relative overflow-x-hidden">
+      
+      {/* Fixed Brand Logo */}
+      <div className="fixed top-5 left-6 md:top-6 md:left-8 z-50 mix-blend-difference">
+        <Link to="/" className="group flex items-start">
+          <h1 className="font-sans font-black text-xl md:text-2xl tracking-tighter text-white">
             CODEZEN
-            <span className="text-xs md:text-lg font-medium ml-1 -mt-1 md:-mt-2">Club</span>
+            <span className="text-[10px] md:text-xs font-medium ml-1 text-neutral-400">Club</span>
           </h1>
         </Link>
       </div>
 
       <Navigation />
 
-      {/* Grid Overlay for premium look */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#111_1px,transparent_1px),linear-gradient(to_bottom,#111_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
+      {/* Subtle Dot Grid Background */}
+      <div
+        className="fixed inset-0 pointer-events-none opacity-20 z-0"
+        style={{
+          backgroundImage: "radial-gradient(#ffffff 1.1px, transparent 1.1px)",
+          backgroundSize: "28px 28px",
+        }}
+      />
 
-      {/* Main Container */}
-      <div className="flex-1 flex flex-col items-center justify-between z-10 pt-28 pb-12 px-6 relative w-full max-w-7xl mx-auto">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 md:px-10 pt-20 md:pt-24 pb-20">
         
-        {/* Header / Intro */}
-        <div className="text-center max-w-3xl space-y-4 mb-4">
-          <motion.h2
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-4xl md:text-6xl font-black uppercase tracking-tight"
-          >
-            Club Members
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-slate-400 text-sm md:text-base font-medium max-w-xl mx-auto"
-          >
-            {currentDomain.description}
-          </motion.p>
+        {/* ======================================================== */}
+        {/* COMPACT HEADER: Low vertical footprint so cards show fast */}
+        {/* ======================================================== */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-6 mb-8">
+          <div>
+            <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-white/50 mb-1">
+              — 01 / TEAM DIRECTORY —
+            </p>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight text-white leading-tight">
+              Core Leads & Members
+            </h1>
+          </div>
 
-          {/* Domain Tabs */}
-          <div className="flex flex-wrap items-center justify-center gap-2 pt-4">
-            {(Object.keys(DOMAINS) as DomainKey[]).map((domain) => (
-              <button
-                key={domain}
-                onClick={() => setSelectedDomain(domain)}
-                className={`px-4 py-2 text-xs md:text-sm font-black uppercase tracking-widest border transition-all duration-300 ${
-                  selectedDomain === domain
-                    ? "bg-white text-black border-white shadow-[0_0_15px_rgba(255,255,255,0.3)]"
-                    : "bg-transparent text-white/60 border-white/20 hover:border-white/50 hover:text-white"
-                }`}
-              >
-                {domain}
-              </button>
-            ))}
+          <div className="flex items-center gap-6 font-mono text-xs text-white/60">
+            <div>
+              <span className="text-white font-black text-base mr-1">{stats.total || membersList.length}</span>
+              <span>Total Team</span>
+            </div>
+            <div>
+              <span className="text-white font-black text-base mr-1">{stats.leads || membersList.filter(m => m.isLead).length}</span>
+              <span>Domain Leads</span>
+            </div>
+            <div>
+              <span className="text-white font-black text-base mr-1">{stats.domains || Math.max(0, domains.length - 2)}</span>
+              <span>Domains</span>
+            </div>
           </div>
         </div>
 
-        {/* Radar & Members Screen */}
-        <div className="relative flex h-[480px] w-full max-w-3xl flex-col items-center justify-center space-y-6 overflow-hidden px-4 md:px-12 border border-slate-800/40 rounded-3xl bg-black/40 backdrop-blur-sm mt-4 shadow-2xl">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={selectedDomain}
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.98 }}
-              transition={{ duration: 0.3 }}
-              className="w-full flex flex-col space-y-6 items-center justify-center"
+        {/* ======================================================== */}
+        {/* COMPACT CONTROLS: Domain Tabs & Search in 1 Line          */}
+        {/* ======================================================== */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
+          {/* Domain Filter Pills */}
+          <div className="flex flex-wrap items-center gap-2">
+            {domains.map((dom) => {
+              const count =
+                dom === "All"
+                  ? membersList.length
+                  : dom === "Leads"
+                  ? membersList.filter((m) => m.isLead).length
+                  : membersList.filter((m) => m.domain === dom).length;
+
+              return (
+                <button
+                  key={dom}
+                  type="button"
+                  onClick={() => setActiveDomain(dom)}
+                  className={`px-3.5 py-1.5 rounded-full font-mono text-xs uppercase tracking-wider font-bold transition-all flex items-center gap-1.5 ${
+                    activeDomain === dom
+                      ? "bg-white text-black shadow-md"
+                      : "bg-white/[0.06] text-white/70 hover:text-white hover:bg-white/15 border border-white/10"
+                  }`}
+                >
+                  <span>{dom}</span>
+                  <span
+                    className={`text-[9px] px-1.5 py-0.2 rounded-full ${
+                      activeDomain === dom ? "bg-black text-white" : "bg-white/10 text-white/50"
+                    }`}
+                  >
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Quick Search Bar */}
+          <div className="relative w-full lg:w-64">
+            <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search name or role..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-3.5 py-1.5 rounded-full bg-white/[0.06] border border-white/10 focus:border-white focus:bg-white/10 font-mono text-xs text-white placeholder:text-white/35 outline-none transition-all"
+            />
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="py-24 text-center">
+            <div className="inline-block w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin mb-4" />
+            <p className="font-mono text-xs uppercase tracking-widest text-white/50">Loading Team Directory...</p>
+          </div>
+        ) : filteredMembers.length === 0 ? (
+          <div className="py-20 text-center border border-white/10 rounded-3xl bg-white/[0.02]">
+            <p className="font-mono text-xs text-white/40 uppercase tracking-widest">
+              No members found matching "{searchQuery}"
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* ======================================================== */}
+            {/* SECTION 1: CORE LEADS & OFFICERS                         */}
+            {/* ======================================================== */}
+            {leads.length > 0 && (
+              <div className="mb-12">
+                <div className="flex items-center gap-2 mb-5">
+                  <span className="w-2 h-2 rounded-full bg-white" />
+                  <h2 className="text-xs font-mono uppercase tracking-[0.25em] text-white/70 font-bold">
+                    Core Team Leads & Officers ({leads.length})
+                  </h2>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+                  {leads.map((member) => (
+                    <MemberCard key={member.name + member.role} member={member} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ======================================================== */}
+            {/* SECTION 2: ACTIVE WORKING MEMBERS & CONTRIBUTORS          */}
+            {/* ======================================================== */}
+            {activeWorkingMembers.length > 0 && (
+              <div className="mb-14">
+                <div className="flex items-center gap-2 mb-5">
+                  <span className="w-2 h-2 rounded-full bg-white/40" />
+                  <h2 className="text-xs font-mono uppercase tracking-[0.25em] text-white/50 font-bold">
+                    Working Members & Developers ({activeWorkingMembers.length})
+                  </h2>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+                  {activeWorkingMembers.map((member) => (
+                    <MemberCard key={member.name + member.role} member={member} />
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* ======================================================== */}
+        {/* COMPACT BOTTOM RECRUITMENT BANNER                        */}
+        {/* ======================================================== */}
+        <div className="p-6 sm:p-8 rounded-3xl bg-white text-black flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
+          <div>
+            <h3 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-black mb-1">
+              Want to Build with CodeZen?
+            </h3>
+            <p className="font-sans text-neutral-600 text-xs sm:text-sm max-w-lg">
+              Recruitment opens every semester across Technical, Design, Management, and Marketing domains.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <Link
+              to="/#contact"
+              className="w-full md:w-auto px-6 py-3 rounded-full bg-black text-white hover:bg-neutral-800 font-mono text-xs uppercase tracking-wider font-bold transition-all text-center flex items-center justify-center gap-2"
             >
-              {/* Row 1 */}
-              <div className="mx-auto w-full max-w-3xl z-50">
-                <div className="flex w-full items-center justify-center space-x-10 md:justify-between md:space-x-0">
-                  {renderMember(layout.row1[0], 0)}
-                  {renderMember(layout.row1[1], 1)}
-                  {renderMember(layout.row1[2], 2)}
-                </div>
-              </div>
+              <span>Apply for Core Team</span>
+              <ArrowRight size={13} />
+            </Link>
 
-              {/* Row 2 */}
-              <div className="mx-auto w-full max-w-md z-50">
-                <div className="flex w-full items-center justify-center space-x-10 md:justify-between md:space-x-0">
-                  {renderMember(layout.row2[0], 3)}
-                  {renderMember(layout.row2[1], 4)}
-                </div>
-              </div>
-
-              {/* Row 3 */}
-              <div className="mx-auto w-full max-w-3xl z-50">
-                <div className="flex w-full items-center justify-center space-x-10 md:justify-between md:space-x-0">
-                  {renderMember(layout.row3[0], 5)}
-                  {renderMember(layout.row3[1], 6)}
-                </div>
-              </div>
-            </motion.div>
-          </AnimatePresence>
-
-          <Radar className="absolute -bottom-10 left-1/2 -translate-x-1/2" />
-          <div className="absolute bottom-0 z-[41] h-px w-full bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
+            <Link
+              to="/"
+              className="w-full md:w-auto px-5 py-3 rounded-full border border-black/20 hover:border-black font-mono text-xs uppercase tracking-wider font-bold transition-colors text-center flex items-center justify-center gap-2"
+            >
+              <ArrowLeft size={13} />
+              <span>Back Home</span>
+            </Link>
+          </div>
         </div>
 
-        {/* Footer info / Back button */}
-        <div className="mt-8 text-center">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 text-xs md:text-sm font-black uppercase tracking-widest text-slate-500 hover:text-white transition-colors"
-          >
-            ← Back to Home
-          </Link>
+      </div>
+    </div>
+  );
+}
+
+// Reusable Compact Architectural Member Card
+function MemberCard({ member }: { member: Member }) {
+  return (
+    <div className="group p-4 rounded-[26px] bg-white/[0.03] hover:bg-white/[0.07] border border-white/10 hover:border-white/35 transition-all duration-300 flex flex-col justify-between shadow-md hover:-translate-y-1">
+      <div>
+        {/* Portrait Frame */}
+        <div className="relative w-full aspect-[4/4.2] rounded-xl overflow-hidden bg-neutral-900 border border-white/10 group-hover:border-white/25 transition-colors mb-3.5">
+          <img
+            src={member.photo}
+            alt={member.name}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+            onError={(e) => {
+              const target = e.currentTarget;
+              target.style.display = 'none';
+              const fallback = target.parentElement?.querySelector('.member-fallback') as HTMLElement;
+              if (fallback) fallback.style.display = 'flex';
+            }}
+          />
+
+          {/* Fallback Monogram Frame */}
+          <div className="member-fallback w-full h-full hidden flex-col items-center justify-center bg-white/5 text-white/40">
+            <span className="font-mono text-2xl font-black">{member.initials}</span>
+          </div>
+
+          {/* Lead or Domain Tag Floating on Top-Left */}
+          <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full bg-black/85 backdrop-blur-md border border-white/15 text-white font-mono text-[8px] font-bold uppercase tracking-wider flex items-center gap-1">
+            {member.isLead && <Crown size={10} className="text-white" />}
+            <span>{member.isLead ? "LEAD" : member.domain}</span>
+          </div>
+
+          {/* Active Status Pulse */}
+          <div className="absolute top-2.5 right-2.5 flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/85 backdrop-blur-md border border-white/15">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400" />
+            </span>
+            <span className="text-[7px] font-mono text-white/80 uppercase tracking-widest font-bold">
+              Active
+            </span>
+          </div>
         </div>
+
+        {/* Member Details */}
+        <div className="px-0.5">
+          <span className="text-[9px] font-mono font-bold tracking-wider uppercase text-white/50 block mb-0.5">
+            {member.role}
+          </span>
+
+          <h4 className="text-base font-black tracking-tight text-white mb-1 leading-snug group-hover:text-white transition-colors">
+            {member.name}
+          </h4>
+
+          <p className="text-[11px] font-mono text-white/50 leading-relaxed line-clamp-2">
+            {member.specialty}
+          </p>
+        </div>
+      </div>
+
+      {/* Direct Social Links */}
+      <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          {member.github && (
+            <a
+              href={member.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-7 h-7 rounded-full border border-white/15 flex items-center justify-center text-white/50 hover:text-white hover:border-white transition-colors"
+              title="GitHub"
+            >
+              <Github size={12} />
+            </a>
+          )}
+          {member.linkedin && (
+            <a
+              href={member.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-7 h-7 rounded-full border border-white/15 flex items-center justify-center text-white/50 hover:text-white hover:border-white transition-colors"
+              title="LinkedIn"
+            >
+              <Linkedin size={12} />
+            </a>
+          )}
+          {member.email && (
+            <a
+              href={`mailto:${member.email}`}
+              className="w-7 h-7 rounded-full border border-white/15 flex items-center justify-center text-white/50 hover:text-white hover:border-white transition-colors"
+              title="Email"
+            >
+              <Mail size={12} />
+            </a>
+          )}
+        </div>
+
+        <span className="text-[9px] font-mono uppercase tracking-widest text-white/30">
+          {member.domain}
+        </span>
       </div>
     </div>
   );

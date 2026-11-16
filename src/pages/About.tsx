@@ -1,6 +1,13 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useEffect, useState } from "react";
 
+const stats = [
+  { value: "2100+", label: "COMMUNITY MEMBERS" },
+  { value: "60+", label: "CORE TEAM" },
+  { value: "1800+", label: "EVENT REGISTRATIONS" },
+  { value: "5+", label: "MAJOR EVENTS" },
+];
+
 const About = () => {
   const [vh, setVh] = useState(
     typeof window !== "undefined" ? window.innerHeight : 800
@@ -15,85 +22,90 @@ const About = () => {
 
   const { scrollY } = useScroll();
 
-  const y1 = useTransform(scrollY, [0, vh * 0.4], [80, 0]);
-  const opacity1 = useTransform(scrollY, [0, vh * 0.3], [0, 1]);
+  // Scroll animations for smooth parallax reveal
+  const leftY = useTransform(scrollY, [0, vh * 0.4], [70, 0]);
+  const leftOpacity = useTransform(scrollY, [0, vh * 0.3], [0, 1]);
 
-  const y2 = useTransform(scrollY, [vh * 0.1, vh * 0.5], [80, 0]);
-  const opacity2 = useTransform(scrollY, [vh * 0.1, vh * 0.4], [0, 1]);
-
-  const y3 = useTransform(scrollY, [vh * 0.2, vh * 0.6], [80, 0]);
-  const opacity3 = useTransform(scrollY, [vh * 0.2, vh * 0.5], [0, 1]);
-
-  const y4 = useTransform(scrollY, [vh * 0.3, vh * 0.7], [80, 0]);
-  const opacity4 = useTransform(scrollY, [vh * 0.3, vh * 0.6], [0, 1]);
+  const rightY = useTransform(scrollY, [vh * 0.1, vh * 0.5], [70, 0]);
+  const rightOpacity = useTransform(scrollY, [vh * 0.1, vh * 0.4], [0, 1]);
 
   return (
-    <section className="h-screen w-full bg-white text-black font-sans px-6 md:px-12 lg:px-16 overflow-hidden flex items-center justify-center relative">
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-y-8 md:gap-x-12 w-full max-w-[1600px] mx-auto">
+    <section className="relative w-full h-screen bg-white text-black font-sans overflow-hidden flex items-center justify-center px-6 sm:px-10 md:px-14 lg:px-20 xl:px-28">
+      {/* Subtle Dot Grid Background */}
+      <div
+        className="absolute inset-0 pointer-events-none z-0"
+        style={{
+          backgroundImage: "radial-gradient(#d4d4d8 1.1px, transparent 1.1px)",
+          backgroundSize: "24px 24px",
+        }}
+      />
+
+      {/* Large Faint Watermark */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden z-0">
+        <span className="font-sans font-black text-[18vw] leading-none text-neutral-900/[0.035] tracking-tighter uppercase whitespace-nowrap">
+          CODEZEN
+        </span>
+      </div>
+
+      {/* Main Two-Column Content Grid */}
+      <div className="relative z-10 w-full max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 xl:gap-24 items-center">
+        {/* Left Column: WHAT WE ARE */}
         <motion.div
-          className="md:col-span-3 lg:col-span-3 pt-2"
-          style={{ y: y1, opacity: opacity1 }}
+          style={{ y: leftY, opacity: leftOpacity }}
+          className="lg:col-span-6 flex flex-col justify-center"
         >
-          <h2 className="font-sans text-xs md:text-sm font-bold uppercase tracking-widest">
-            {/* CodeZen Overview */}
+          {/* Eyebrow Label */}
+          <p className="text-[11px] sm:text-xs font-mono font-medium tracking-[0.25em] text-neutral-400 uppercase mb-5 sm:mb-8">
+            — 01 — WHAT WE ARE
+          </p>
+
+          {/* Main Title */}
+          <h2 className="font-sans font-black tracking-tighter text-5xl sm:text-6xl md:text-7xl lg:text-[5.2rem] xl:text-[6.2rem] leading-[0.88] uppercase select-none">
+            <span className="block text-black">BUILDING</span>
+            <span className="block text-slate-500">ELITE</span>
+            <span className="block text-black">DEVELOPERS.</span>
           </h2>
+
+          {/* Description */}
+          <p className="font-sans text-neutral-500 text-sm sm:text-base md:text-[15px] leading-relaxed max-w-lg mt-6 sm:mt-8 font-normal">
+            CGC University's premier student-led technology community, engineering high-performance contributors, software leads, and technical founders through structured learning and real-world building.
+          </p>
+
+          {/* Bottom Divider / Tagline */}
+          <div className="flex items-center gap-3 mt-8 sm:mt-10 text-[10px] sm:text-xs font-mono font-medium tracking-[0.25em] text-neutral-400 uppercase">
+            <span className="w-8 sm:w-12 h-[1px] bg-neutral-300" />
+            <span className="whitespace-nowrap">BUILD · DEVELOP · GROW</span>
+            <span className="flex-1 max-w-[180px] sm:max-w-[260px] h-[1px] bg-neutral-300" />
+          </div>
         </motion.div>
 
-        <div className="md:col-span-9 lg:col-span-9 flex flex-col gap-10 md:gap-12">
-          <motion.div style={{ y: y2, opacity: opacity2 }} className="flex flex-col gap-2">
-            <h3 className="font-sans text-xs md:text-sm font-bold uppercase tracking-wide opacity-100 mb-1">
-              01. Community
-            </h3>
-            <div className="flex flex-col">
-              <p className="font-sans text-xl md:text-2xl lg:text-3xl font-bold leading-tight tracking-tight">
-                CGC University's student-led technology community
-              </p>
-              <p className="font-sans text-xl md:text-2xl lg:text-3xl font-normal text-black/70 leading-tight tracking-tight">
-                Focused on technical excellence, leadership, innovation, and industry-ready skills.
-              </p>
-            </div>
-          </motion.div>
+        {/* Right Column: BY THE NUMBERS */}
+        <motion.div
+          style={{ y: rightY, opacity: rightOpacity }}
+          className="lg:col-span-6 flex flex-col justify-center lg:pl-4 xl:pl-8"
+        >
+          {/* Eyebrow Label */}
+          <p className="text-[11px] sm:text-xs font-mono font-medium tracking-[0.25em] text-neutral-400 uppercase mb-4 sm:mb-6">
+            — 02 — BY THE NUMBERS
+          </p>
 
-          <motion.div style={{ y: y3, opacity: opacity3 }} className="flex flex-col gap-2">
-            <h3 className="font-sans text-xs md:text-sm font-bold uppercase tracking-wide opacity-100 mb-1">
-              02. Scale
-            </h3>
-
-            <div className="flex flex-col gap-6">
-              <div>
-                <p className="font-sans text-xl md:text-2xl lg:text-3xl font-bold leading-tight tracking-tight">
-                  2100+ Community Members
-                </p>
-                <p className="font-sans text-xl md:text-2xl lg:text-3xl font-normal text-black/70 leading-tight tracking-tight">
-                  60+ core team members.
-                </p>
+          {/* Stats List */}
+          <div className="flex flex-col w-full">
+            {stats.map((stat, idx) => (
+              <div
+                key={idx}
+                className="flex items-center justify-between py-5 sm:py-6 md:py-7 border-b border-neutral-200/90"
+              >
+                <span className="font-sans font-black text-4xl sm:text-5xl md:text-6xl text-neutral-900 tracking-tight leading-none">
+                  {stat.value}
+                </span>
+                <span className="font-mono text-[10px] sm:text-xs tracking-[0.2em] uppercase text-neutral-400 font-medium text-right ml-4">
+                  {stat.label}
+                </span>
               </div>
-
-              <div>
-                <p className="font-sans text-xl md:text-2xl lg:text-3xl font-bold leading-tight tracking-tight">
-                  5+ Events & 1800+ Registrations
-                </p>
-                <p className="font-sans text-xl md:text-2xl lg:text-3xl font-normal text-black/70 leading-tight tracking-tight">
-                  Workshops, bootcamps, hackathons, seminars, competitions, and networking events.
-                </p>
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.div style={{ y: y4, opacity: opacity4 }} className="flex flex-col gap-2">
-            <h3 className="font-sans text-xs md:text-sm font-bold uppercase tracking-wide opacity-100 mb-1">
-              03. Domains
-            </h3>
-            <ul className="flex flex-col">
-              <li className="font-sans text-xl md:text-2xl lg:text-3xl font-bold leading-tight tracking-tight">
-                Programming, Web Development, Cybersecurity, AI, Cloud Computing
-              </li>
-              <li className="font-sans text-xl md:text-2xl lg:text-3xl font-bold leading-tight tracking-tight">
-                Management, Marketing, Design, Content Creation, Media, Entrepreneurship
-              </li>
-            </ul>
-          </motion.div>
-        </div>
+            ))}
+          </div>
+        </motion.div>
       </div>
     </section>
   );

@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { Link } from "react-router-dom";
+import { logoutUser, getStoredToken, getStoredUser } from "@/config/api";
 
 interface NavItem {
   label: string;
   href: string;
   number: string;
+  isExternalOrHash?: boolean;
 }
 
 interface SocialItem {
@@ -14,17 +16,17 @@ interface SocialItem {
 }
 
 const navItems: NavItem[] = [
-  { label: "About", href: "/#about", number: "01" },
-  { label: "Work", href: "/#work", number: "02" },
-  { label: "Mission", href: "/#philosophy", number: "03" },
-  { label: "Contact", href: "/#contact", number: "04" },
+  { label: "Home", href: "/", number: "01", isExternalOrHash: false },
+  { label: "Events", href: "/events", number: "02", isExternalOrHash: false },
+  { label: "Members", href: "/members", number: "03", isExternalOrHash: false },
+  { label: "Store", href: "/store", number: "04", isExternalOrHash: false },
 ];
 
 const socialItems: SocialItem[] = [
-  { label: "GitHub", href: "https://github.com/neodyit" },
-  { label: "LinkedIn", href: "" },
-  { label: "Instagram", href: "https://www.instagram.com/codemaestro_mayank_/" },
-  { label: "Email", href: "" },
+  { label: "WhatsApp", href: "https://chat.whatsapp.com/GlNv1nsYpd49MivwcHkPCo?s=cl&p=a&ilr=1" },
+  { label: "LinkedIn", href: "https://www.linkedin.com/company/codezenofficial" },
+  { label: "Instagram", href: "https://www.instagram.com/codezencommunity/" },
+  { label: "Email", href: "mailto:info@codezencommunity.com" },
 ];
 
 const ease = [0.76, 0, 0.24, 1] as [number, number, number, number];
@@ -77,6 +79,35 @@ const socialVariants: Variants = {
 
 const Navigation = () => {
   const [open, setOpen] = useState(false);
+  const [user, setUser] = useState<{ name?: string; email?: string } | null>(null);
+
+  useEffect(() => {
+    const checkAuth = () => {
+      const storedUser = getStoredUser();
+      const token = getStoredToken();
+      if (token && storedUser) {
+        setUser(storedUser);
+      } else if (token) {
+        setUser({ name: "Member" });
+      } else {
+        setUser(null);
+      }
+    };
+
+    checkAuth();
+
+    // Listen for global auth invalidation events
+    window.addEventListener("codezen_auth_invalidated", checkAuth);
+    return () => {
+      window.removeEventListener("codezen_auth_invalidated", checkAuth);
+    };
+  }, [open]);
+
+  const handleLogout = async () => {
+    setUser(null);
+    setOpen(false);
+    await logoutUser("/#contact");
+  };
 
   useEffect(() => {
     if (open) {
@@ -146,74 +177,115 @@ const Navigation = () => {
             exit="closed"
             className="fixed inset-0 z-[100] bg-black flex flex-col justify-between px-8 md:px-16 pt-16 pb-10 md:pt-20 md:pb-14"
           >
-            {/* Socials row */}
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mb-4 pt-10 md:pt-0">
-              <p className="text-base md:text-lg font-medium text-white/50 uppercase tracking-wider mr-2 select-none">
-                Socials
-              </p>
-              {socialItems.map((item, i) => (
-                <motion.a
-                  key={item.label}
-                  href={item.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  custom={i}
-                  variants={socialVariants}
-                  initial="closed"
-                  animate="open"
-                  exit="closed"
-                  className="text-base md:text-lg font-medium text-white hover:opacity-40"
-                >
-                  {item.label}
-                </motion.a>
-              ))}
+            {/* Socials & Auth Actions Row */}
+            <div className="flex flex-wrap items-center justify-between gap-y-4 mb-4 pt-12 md:pt-4 pr-16 md:pr-24 border-b border-white/10 pb-4">
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+                <p className="text-base md:text-lg font-medium text-white/50 uppercase tracking-wider mr-2 select-none">
+                  Socials
+                </p>
+                {socialItems.map((item, i) => (
+                  <motion.a
+                    key={item.label}
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    custom={i}
+                    variants={socialVariants}
+                    initial="closed"
+                    animate="open"
+                    exit="closed"
+                    className="text-base md:text-lg font-medium text-white hover:opacity-40"
+                  >
+                    {item.label}
+                  </motion.a>
+                ))}
+              </div>
 
-              <span className="text-white/20 hidden md:inline select-none">|</span>
-
-              <motion.div
-                custom={socialItems.length}
-                variants={socialVariants}
-                initial="closed"
-                animate="open"
-                exit="closed"
-                className="inline-flex items-center"
-              >
-                <Link
-                  to="/members"
-                  onClick={handleNavClick}
-                  className="text-base md:text-lg font-medium text-white hover:opacity-40 transition-opacity duration-300"
-                >
-                  Members
-                </Link>
-              </motion.div>
+              {/* Dynamic Auth Header: Name, Dashboard, Logout (or Login) */}
+              <div className="flex items-center gap-3 md:gap-4">
+                {user ? (
+                  <>
+                    <span className="text-xs md:text-sm font-mono font-bold tracking-wider text-white px-3 py-1.5 rounded-full border border-white/20 bg-white/5">
+                      {user.name || "Member"}
+                    </span>
+                    <Link
+                      to="/dashboard"
+                      onClick={handleNavClick}
+                      className="text-xs md:text-sm font-mono font-bold uppercase tracking-wider px-4 py-1.5 rounded-full bg-white text-black hover:bg-neutral-200 transition-colors"
+                    >
+                      Dashboard
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="text-xs md:text-sm font-mono uppercase tracking-wider text-white/60 hover:text-white px-3 py-1.5 rounded-full border border-white/20 hover:border-white transition-colors"
+                    >
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <Link
+                    to="/login"
+                    onClick={handleNavClick}
+                    className="text-xs md:text-sm font-mono font-bold uppercase tracking-wider px-4 py-1.5 rounded-full border border-white/30 text-white hover:bg-white hover:text-black transition-all"
+                  >
+                    Login / Join
+                  </Link>
+                )}
+              </div>
             </div>
 
             {/* Nav Links */}
             <nav className="flex flex-col gap-0">
-              {navItems.map((item, i) => (
-                <div
-                  key={item.label}
-                  className="overflow-hidden border-b border-white/25 py-3 md:py-4"
-                >
-                  <motion.a
-                    href={item.href}
-                    onClick={handleNavClick}
-                    custom={i}
-                    variants={itemVariants}
-                    initial="closed"
-                    animate="open"
-                    exit="closed"
-                    className="flex items-baseline justify-between group cursor-pointer"
-                  >
+              {navItems.map((item, i) => {
+                const linkContent = (
+                  <>
                     <span className="text-5xl md:text-7xl lg:text-8xl font-semibold text-white uppercase tracking-tight leading-none group-hover:translate-x-3 transition-transform duration-300 ease-out">
                       {item.label}
                     </span>
                     <span className="text-xs text-white/55 font-mono tracking-widest self-start mt-2">
                       {item.number}
                     </span>
-                  </motion.a>
-                </div>
-              ))}
+                  </>
+                );
+
+                return (
+                  <div
+                    key={item.label}
+                    className="overflow-hidden border-b border-white/25 py-3 md:py-4"
+                  >
+                    {item.isExternalOrHash ? (
+                      <motion.a
+                        href={item.href}
+                        onClick={handleNavClick}
+                        custom={i}
+                        variants={itemVariants}
+                        initial="closed"
+                        animate="open"
+                        exit="closed"
+                        className="flex items-baseline justify-between group cursor-pointer"
+                      >
+                        {linkContent}
+                      </motion.a>
+                    ) : (
+                      <motion.div
+                        custom={i}
+                        variants={itemVariants}
+                        initial="closed"
+                        animate="open"
+                        exit="closed"
+                      >
+                        <Link
+                          to={item.href}
+                          onClick={handleNavClick}
+                          className="flex items-baseline justify-between group cursor-pointer"
+                        >
+                          {linkContent}
+                        </Link>
+                      </motion.div>
+                    )}
+                  </div>
+                );
+              })}
             </nav>
 
             {/* Bottom copyright */}
@@ -221,9 +293,9 @@ const Navigation = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1, transition: { delay: 1.2, duration: 0.8 } }}
               exit={{ opacity: 0, transition: { duration: 0.6 } }}
-              className="text-xs text-white/20 font-mono tracking-widest mt-8 md:mt-0 md:self-end"
+              className="text-xs text-white/30 font-mono tracking-widest mt-8 md:mt-0 md:self-end"
             >
-              © 2026 MAYANK TIWARI
+              Built by Mayank Tiwari
             </motion.p>
           </motion.div>
         )}

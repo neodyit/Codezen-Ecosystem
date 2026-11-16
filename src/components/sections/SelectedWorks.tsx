@@ -7,43 +7,47 @@ import '../ui/ScrollStack.css';
 const projects = [
   {
     id: "001",
-    title: "Community Scale",
+    title: "COMMUNITY SCALE",
     stack: "2800+ Members / 60+ Core Team / Multiple WhatsApp Communities",
     description: "CodeZen is CGC University's student-led technology community built around technical excellence, leadership, innovation, and industry-ready skills.",
     imageSize: { width: "260px", height: "260px", radius: "32px" },
-    links: { live: "#", code: "#" },
-    image: "logo.png",
+    links: { live: "/#about", code: "#" },
+    image: "/logo.png",
+    imageType: "logo",
     cta: "View Details"
   },
   {
     id: "002",
-    title: "Learning Initiatives",
+    title: "LEARNING INITIATIVES",
     stack: "Workshops / Bootcamps / Seminars / Competitions",
-    description: "The community organizes workshops, bootcamps, seminars, competitions, networking events, and hands-on learning initiatives across technical and non-technical domains.",
+    description: "Empowering students through intensive hands-on coding bootcamps, technical seminars, hack-prep masterclasses, and guided developer cohorts.",
     imageSize: { width: "100%", height: "280px", radius: "32px" },
-    links: { live: "#", code: "#" },
-    image: "",
+    links: { live: "/#work", code: "#" },
+    image: "/card-learning.jpg",
+    imageType: "cover",
     cta: "Explore Events"
   },
   {
     id: "003",
-    title: "Hackathons & Registrations",
-    stack: "50+ Events / 10000+ Event Registrations",
-    description: "CodeZen supports hackathons and large-scale student participation, giving members practical spaces to build, collaborate, and present real-world work.",
-    imageSize: { width: "100%", height: "320px", radius: "36px" },
-    links: { live: "#", code: "#" },
-    image: "./p3.png",
-    cta: "View Details"
+    title: "HACKATHONS & SPRINT BUILDS",
+    stack: "5+ Major Hackathons / 1800+ Registrations / Active Builders",
+    description: "CodeZen fosters a culture of rapid prototyping and competitive innovation, hosting hackathons where student teams engineer and pitch production-ready apps.",
+    imageSize: { width: "100%", height: "300px", radius: "32px" },
+    links: { live: "/#work", code: "#" },
+    image: "/card-hackathon.jpg",
+    imageType: "cover",
+    cta: "View Highlights"
   },
   {
     id: "004",
-    title: "Domain Teams",
+    title: "MULTIDISCIPLINARY DOMAINS",
     stack: "Technical / Management / Marketing / Design / Content / Media",
-    description: "CodeZen brings students into multiple technical and non-technical domains, including programming, web development, cybersecurity, AI, cloud, marketing, design, media, and entrepreneurship.",
-    imageSize: { width: "100%", height: "320px", radius: "36px" },
-    links: { live: "#", code: "#" },
-    image: "./p4.png",
-    cta: "Meet Teams"
+    description: "Bringing students together across web, cloud, AI/ML, UI/UX design, event management, and digital media—bridging classroom theory with real-world execution.",
+    imageSize: { width: "100%", height: "300px", radius: "32px" },
+    links: { live: "/members", code: "#" },
+    image: "/card-domains.jpg",
+    imageType: "cover",
+    cta: "Meet The Team"
   },
 ];
 
@@ -57,7 +61,7 @@ const ScrollStackCard = ({ project }: ScrollStackCardProps) => {
     <StarBorder
       as="div"
       className="scroll-stack-card"
-      color="#00f2fe, #4facfe, #7000ff"
+      color="#ffffff, #333333, #ffffff"
       speed="8s"
     >
       <div className="card-top-row">
@@ -72,10 +76,10 @@ const ScrollStackCard = ({ project }: ScrollStackCardProps) => {
         <StarBorder
           as="a"
           href={project.links.live}
-          target="_blank"
-          rel="noopener noreferrer"
+          target={project.links.live.startsWith("http") ? "_blank" : undefined}
+          rel={project.links.live.startsWith("http") ? "noopener noreferrer" : undefined}
           className="live-btn-star"
-          color="#f6d365, #fda085"
+          color="#ffffff, #444444, #ffffff"
           speed="3s"
         >
           {project.cta}
@@ -84,19 +88,43 @@ const ScrollStackCard = ({ project }: ScrollStackCardProps) => {
 
       <div className="content-grid">
         {project.image ? (
-          <img
-            src={project.image}
-            className="main-image object-contain"
-            alt={project.title}
-            style={{
-              width: project.imageSize.width,
-              height: project.imageSize.height,
-              maxWidth: "100%",
-              maxHeight: "100%",
-              borderRadius: project.imageSize.radius,
-            }}
-            onLoad={() => window.dispatchEvent(new Event('resize'))}
-          />
+          project.imageType === "logo" ? (
+            <div
+              className="main-image flex items-center justify-center bg-white p-6 shadow-2xl"
+              style={{
+                width: project.imageSize.width,
+                height: project.imageSize.height,
+                maxWidth: "100%",
+                maxHeight: "100%",
+                borderRadius: project.imageSize.radius,
+              }}
+            >
+              <img
+                src={project.image}
+                className="w-full h-full object-contain"
+                alt={project.title}
+                onLoad={() => window.dispatchEvent(new Event('resize'))}
+              />
+            </div>
+          ) : (
+            <div
+              className="main-image overflow-hidden shadow-2xl border border-white/10"
+              style={{
+                width: project.imageSize.width,
+                height: project.imageSize.height,
+                maxWidth: "100%",
+                maxHeight: "100%",
+                borderRadius: project.imageSize.radius,
+              }}
+            >
+              <img
+                src={project.image}
+                className="w-full h-full object-cover"
+                alt={project.title}
+                onLoad={() => window.dispatchEvent(new Event('resize'))}
+              />
+            </div>
+          )
         ) : (
           <div
             className="main-image flex items-center justify-center bg-white/5 text-white/40 text-xs font-bold uppercase tracking-[0.2em]"
