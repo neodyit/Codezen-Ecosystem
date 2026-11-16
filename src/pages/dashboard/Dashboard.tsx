@@ -434,7 +434,7 @@ export default function Dashboard() {
       .filter((s) => s.type === "semester" && s.is_active)
       .sort((a, b) => a.sort_order - b.sort_order)
       .map((s) => s.name);
-    return Array.from(new Set([...listFromSettings, ...(academicOptions.semesters || []), "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"])).filter(Boolean);
+    return Array.from(new Set([...listFromSettings, ...(academicOptions.semesters || [])])).filter(Boolean);
   }, [allTaxonomies, academicOptions.semesters]);
 
   const dynamicDepartments = useMemo(() => {
@@ -3315,7 +3315,7 @@ export default function Dashboard() {
                         className="w-full p-2.5 bg-zinc-900 border border-zinc-800 text-white text-xs outline-none focus:border-white"
                       >
                         <option value="">Select Semester</option>
-                        {academicOptions.semesters.map((s) => (
+                        {dynamicSemesters.map((s) => (
                           <option key={s} value={s}>{s}</option>
                         ))}
                       </select>
